@@ -1,6 +1,6 @@
 #First, required package needs to be installed
 install.packages("tidyverse")
-install.packages('Vegan')
+install.packages('vegan')
 install.packages('maps')
 
 #Then packages are passed through the library function so we can use them
