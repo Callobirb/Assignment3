@@ -1,9 +1,8 @@
-#Testing if this works
 #First, required package needs to be installed
 install.packages("tidyverse")
 install.packages('Vegan')
 install.packages('maps')
-#this is a change
+
 #Then packages are passed through the library function so we can use them
 library("tidyverse")
 library('vegan')
