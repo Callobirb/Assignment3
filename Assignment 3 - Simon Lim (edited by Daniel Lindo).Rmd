@@ -169,10 +169,28 @@ rarecurve( x = dfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richn
 ```
 
 ##Edit 3- Introduction of a new plot with a viridis colour scheme. 
-I believe that this project could benefit from a visualisation in which not only the general composition of Anseriformes is examined but the species themselves are highlighted showing the possible differences in diversity (ie. species composition) between Canada and Argentina. I believe that a stacked bar chart is the best option for this because it is a simple graphic that can include multiple different points.
+I believe that this project could benefit from a visualisation in which not only the general composition of Anseriformes is examined but the species themselves are highlighted showing the possible differences in diversity (ie. species composition) between Canada and Argentina. I believe that a stacked bar chart is the best option for this because it is a simple visual that can prove as a powerful tool to help someone understand your analysis. 
 
 Below you can find the code for a stacked bar chart
 ```{r}
+#Let us start by making a smaller dataset to collect from that only includes the columns and countries we want. 
 
+Arg_vs_Can <- NAbirdBOLD %>%
+  
+  select(processid, order_name, species_name, country) %>%
+  
+  filter(country == c("Argentina", "Canada")) %>%
+  
+  filter(!is.na(species_name))
+
+#Lets make this into a stacked bar chart now, this way we can visualise the species that belong to the order Anseriformes in Canada and Argentina. 
+
+ggplot(data = Arg_vs_Can, aes(x = country, fill = species_name)) +
+  
+  geom_bar(colour = "black") +
+  
+  labs(x = "Country", y = "Number of Samples", title = "Stacked Bar Graph of Anseriformes between Argentina and Canada", fill = "Species Name") +
+  
+  theme_bw()
 
 ```
