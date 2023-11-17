@@ -1,31 +1,3 @@
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
-
-
-
 ##Daniel Lindo (1023678)
 Group 9 Members: Simon Lim, Robin Zutshi, Kai Hsaing Chang
 Primary Author: Simon Lim
@@ -171,25 +143,48 @@ rarecurve( x = dfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richn
 ##Edit 3- Introduction of a new plot with a viridis colour scheme. 
 I believe that this project could benefit from a visualisation in which not only the general composition of Anseriformes is examined but the species themselves are highlighted showing the possible differences in diversity (ie. species composition) between Canada and Argentina. I believe that a stacked bar chart is the best option for this because it is a simple visual that can prove as a powerful tool to help someone understand your analysis. 
 
-Below you can find the code for a stacked bar chart
+Below you can find the code for the visualisations.
 ```{r}
 #Let us start by making a smaller dataset to collect from that only includes the columns and countries we want. 
 
 Arg_vs_Can <- NAbirdBOLD %>%
   
-  select(processid, order_name, species_name, country) %>%
+  select(processid, family_name, genus_name, species_name, country) %>%
   
   filter(country == c("Argentina", "Canada")) %>%
   
   filter(!is.na(species_name))
 
-#Lets make this into a stacked bar chart now, this way we can visualise the species that belong to the order Anseriformes in Canada and Argentina. 
+```
 
+My main problem with this visualisation is that it is too crowded because the main analysis was done at the order level. Because of this I believe that instead of just showing the different species that are present in each country, we show the families.
+```{r}
+family_count <- Arg_vs_Can %>%
+     count(family_name)
+
+genus_count <- Arg_vs_Can %>%
+  count(genus_name, sort = TRUE)
+```
+I then decided that genus is going to be used because all samples are from the family Anatidae. 
+
+This will help by deepening our understanding of the differences in diversity between both countries without going into too much detail and becoming overwhelming. Notice that the chart showing genera is less crowded. 
+
+```{r}
+#Visualising the genera that exist in Argentina and Canada
+ggplot(data = Arg_vs_Can, aes(x = country, fill = genus_name)) +
+  
+  geom_bar(colour = "black") +
+  
+  labs(x = "Country", y = "Number of Samples", title = "Stacked Bar Graph of Anseriform Genera: Argentina and Canada", fill = "Genus Name") +
+  
+  theme_bw()
+
+#Visualising the species that belong to the order Anseriformes in Canada and Argentina.
 ggplot(data = Arg_vs_Can, aes(x = country, fill = species_name)) +
   
   geom_bar(colour = "black") +
   
-  labs(x = "Country", y = "Number of Samples", title = "Stacked Bar Graph of Anseriformes between Argentina and Canada", fill = "Species Name") +
+  labs(x = "Country", y = "Number of Samples", title = "Stacked Bar Graph of Anseriform Species: Argentina and Canada", fill = "Species Name") +
   
   theme_bw()
 
