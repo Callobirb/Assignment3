@@ -29,6 +29,16 @@ Primary Author: Simon Lim
 GitHub (Simon Lim):
 GitHub (Daniel Lindo):
 
+##Edit 1
+
+##Edit 2
+
+##Edit 3
+
+##Reflection
+
+##Teamwork
+
 
 ```{r}
 
