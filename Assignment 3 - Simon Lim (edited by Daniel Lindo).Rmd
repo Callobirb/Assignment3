@@ -1,0 +1,191 @@
+##Daniel Lindo (1023678)
+Group 9 Members: Simon Lim, Robin Zutshi, Kai Hsaing Chang
+Primary Author: Simon Lim
+GitHub (Simon Lim):
+GitHub (Daniel Lindo):
+
+
+##Edit 1- Transfer to Rmarkdown
+The complete original script as well as the major edits have been moved to RMarkdown as opposed to submitting as a script file. This was inspired by one of my group mates, Kai-Hsaing (Jeremy). I decided to adopt this not only because it will create a pdf with embedded code and figures but because it allows for much more clear organisation of the code in chunks. I have changed the original code by correcting any grammatical errors present and also sectioning the code so that it can be separated and read in more manageable chunks.
+
+Below you can find the original code which contains general comments and edits in areas such as grammar/spelling, commenting style and readability/sectioning of the code. 
+
+```{r}
+###General Setup and Importation of Data from BOLD----
+#First, required package needs to be installed
+#install.packages("tidyverse")
+#install.packages('vegan')
+#install.packages('maps')
+
+#Then packages are passed through the library function so we can use them
+library("tidyverse")
+library('vegan')
+library('maps')
+
+#I set working directory 
+#setwd("C:/Users/Simon/My Drive/Fall 2023/BINF6210/Assignment 1")
+
+#Specimen data retrieval
+# Anseriformes also known as waterfowl contain public data on BOLD.Public data as of 2023/09/22 consists of 2,371 published records forming 88 BINS, with specimens from 43 countries. These records include 2,213 species names, representing 133 species.  
+#Below is the path used access data from BOLD
+#http://www.boldsystems.org/index.php/API_Public/specimen?taxon=Anseriformes&format=tsv
+#BOLD specimen data is retrieved using read_tsv, from the BOLD website. . 
+birdBOLD <- read_tsv( file = "http://www.boldsystems.org/index.php/API_Public/specimen?taxon=Anseriformes&format=tsv")
+
+#I then used write_tsv() to write the birdBOLD dataframe to a delimited file named "Anseriformes_BOLD_data.tsv
+write_tsv(birdBOLD, "Anseriformes_BOLD_data.tsv")
+
+#This is being replaced at this area and commented so that anyone who reads this code for the first time can un-comment it (remove the pound symbol) and run it once the original dataset has been downloaded and their own working directory set. 
+birdBOLD <- read_tsv(file = 'Anseriformes_BOLD_data.tsv' )
+
+#general information was gathered using names(), summary(), and length() to have an idea of what is contained in the data
+names(birdBOLD)
+summary(birdBOLD)
+length(birdBOLD)
+
+###Map Generation----
+#Generating an exploratory map of the Anseriformes BINs with lat and lon values in Canada and Argentina
+
+#Using tidyverse format, I start with birdBOLD dataframe, filter for only rows where the country category is 'Canada' and 'Argentina', and filter to remove any NA values from the lat and lon categories. 
+NAbirdBOLD <- birdBOLD %>%
+  filter(country %in% c('Canada','Argentina')) %>%
+  filter(!is.na(lat)) %>%
+  filter(!is.na(lon))
+
+#Fetch world map
+
+world <- map_data('world')
+
+#use ggplot to map fetched world map, and plot coordinates from Canada and Argentina on top 
+
+ggplot() + 
+  geom_map( 
+    data = world, 
+    map = world,
+    aes( x = long, y = lat, map_id = region),
+    color = 'black', 
+    fill = 'lightgray', 
+    size = 0.1) + 
+  geom_point(
+    data = NAbirdBOLD,
+    aes(x = lon, y = lat),
+    color = 'red',
+    size = 0.1) +
+  labs(title = 'Exploratory map of Anseriforms BOLD specimens in Canada and Argentina', x = 'longitude', y = 'latitude') +
+  theme(plot.title = element_text(hjust = 0.5))
+
+###Creation of Species Accumulation Curves----
+#Built a rarefaction curve of all Anseriformes(waterfowl) specimens in Canada with lat and lon data to determine species richness
+
+#dataframe CanadabirdBIN is made by filtering out only specimens from Canada with a non-NA bin_uri from birdBOLD dataframe
+
+CanadabirdBIN <- birdBOLD %>%
+  filter(country == 'Canada') %>%
+  filter(!is.na(bin_uri))
+
+#dataframe dfCOUNT.by.BIN is made to group dataframe rows by bin_uri, and to count how many times each bin_uri appears
+
+dfCount.by.BIN <- CanadabirdBIN %>%
+  group_by(bin_uri) %>%
+  count(bin_uri)
+
+
+#pivot_wider() is used to turn data into a community object fit for use in tidyverse package, the new columns are named after bin_uri values, and the data in the body of the new datatframe is n: the counts in the dfCount.by.BIN dataframe
+
+dfBINs.spread <- pivot_wider( data = dfCount.by.BIN, names_from = bin_uri, values_from = n)
+
+#rarefaction curve is made where x is the sample size, and the y axis is the BIN richness
+
+rarefactioncurvebird <- rarecurve( x = dfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richness", col = 'Black', main = 'Rarefaction curve of BINs of Anseriformes found in Canada', lwd = 2 )
+
+#Built a rarefaction curve of all Anseriformes(waterfowl) specimens in Argentina with lat and lon data to determine species richness
+
+#dataframe ArgbirdBIN is made by filtering out only specimens from Argentina with a non-NA bin_uri from birdBOLD dataframe
+
+ArgbirdBIN <- birdBOLD %>%
+  filter(country == 'Argentina') %>%
+  filter(!is.na(bin_uri))
+
+#dataframe ArgdfCOUNT.by.BIN is made to group dataframe rows by bin_uri, and to count how many times each bin_uri appears
+
+ArgdfCount.by.BIN <- ArgbirdBIN %>%
+  group_by(bin_uri) %>%
+  count(bin_uri)
+
+#pivot_wider() is used to turn data into a community object fit for use in tidyverse package, the new columns are named after bin_uri values, and the data in the body of the new datatframe is n: the counts in the ArgdfCount.by.BIN dataframe
+
+ArgdfBINs.spread <- pivot_wider( data = ArgdfCount.by.BIN, names_from = bin_uri, values_from = n)
+
+#rarefaction curve is made where x is the sample size, and the y axis is the BIN richness
+
+Argrarefactioncurvebird <- rarecurve( x = ArgdfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richness", col = 'Black', main = 'Rarefaction curve of BINs of Anseriformes found in Argentina', lwd = 2 )
+
+```
+
+##Edit 2- Modification of Figures
+Modifying the species accumulation curves:
+This serves to combine both species accumulation curves into one cohesive figure that allows for easier comparison of the curves. 
+
+The function used here is from the graphics package included in base R. It is a function used to set or query graphical parameters, in this case it is used to call the 'mfrow =' argument which creates a matrix who's parameters are defined by a number of rows and columns. Each created graphic is then placed into that matrix from coordinates 1,1 until the matrix is full. 
+ie: mfrow = c(number of rows,number of columns)
+
+In this case, the two plots that are needed for comparison are plotted next to each other as the first rarefaction curve (Argentina) is placed in the matrix spot 1,1 and the second rarefaction curve (Canada) is placed in matrix spot 1,2. 
+ 
+This presents an elegant solution to the problem of displaying two figures for comparison side by side.
+
+```{r}
+par(mfrow = c(1,2))
+rarecurve( x = ArgdfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richness", col = 'Black', main = 'Anseriformes in Argentina', lwd = 2 )
+rarecurve( x = dfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richness", col = 'Black', main = 'Anseriformes in Canada', lwd = 2 )
+
+```
+
+##Edit 3- Introduction of a new plot with a viridis colour scheme. 
+I believe that this project could benefit from a visualisation in which not only the general composition of Anseriformes is examined but the species themselves are highlighted showing the possible differences in diversity (ie. species composition) between Canada and Argentina. I believe that a stacked bar chart is the best option for this because it is a simple visual that can prove as a powerful tool to help someone understand your analysis. 
+
+Below you can find the code for the visualisations.
+```{r}
+#Let us start by making a smaller dataset to collect from that only includes the columns and countries we want. 
+
+Arg_vs_Can <- NAbirdBOLD %>%
+  
+  select(processid, family_name, genus_name, species_name, country) %>%
+  
+  filter(country == c("Argentina", "Canada")) %>%
+  
+  filter(!is.na(species_name))
+
+```
+
+My main problem with this visualisation is that it is too crowded because the main analysis was done at the order level. Because of this I believe that instead of just showing the different species that are present in each country, we show the families.
+```{r}
+family_count <- Arg_vs_Can %>%
+     count(family_name)
+
+genus_count <- Arg_vs_Can %>%
+  count(genus_name, sort = TRUE)
+```
+I then decided that genus is going to be used because all samples are from the family Anatidae. 
+
+This will help by deepening our understanding of the differences in diversity between both countries without going into too much detail and becoming overwhelming. Notice that the chart showing genera is less crowded. 
+
+```{r}
+#Visualising the genera that exist in Argentina and Canada
+ggplot(data = Arg_vs_Can, aes(x = country, fill = genus_name)) +
+  
+  geom_bar(colour = "black") +
+  
+  labs(x = "Country", y = "Number of Samples", title = "Stacked Bar Graph of Anseriform Genera: Argentina and Canada", fill = "Genus Name") +
+  
+  theme_bw()
+
+#Visualising the species that belong to the order Anseriformes in Canada and Argentina.
+ggplot(data = Arg_vs_Can, aes(x = country, fill = species_name)) +
+  
+  geom_bar(colour = "black") +
+  
+  labs(x = "Country", y = "Number of Samples", title = "Stacked Bar Graph of Anseriform Species: Argentina and Canada", fill = "Species Name") +
+  
+  theme_bw()
+
+```
