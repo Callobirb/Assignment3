@@ -54,7 +54,6 @@ library('maps')
 #http://www.boldsystems.org/index.php/API_Public/specimen?taxon=Anseriformes&format=tsv
 #BOLD specimen data is retrieved using read_tsv, from the BOLD website. . 
 birdBOLD <- read_tsv( file = "http://www.boldsystems.org/index.php/API_Public/specimen?taxon=Anseriformes&format=tsv")
-birdBOLD <- read_tsv(file = 'Anseriformes_BOLD_data.tsv' )
 
 #I then used write_tsv() to write the birdBOLD dataframe to a delimited file named "Anseriformes_BOLD_data.tsv
 write_tsv(birdBOLD, "Anseriformes_BOLD_data.tsv")
