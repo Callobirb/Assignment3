@@ -33,8 +33,13 @@ GitHub (Simon Lim):
 GitHub (Daniel Lindo):
 
 
-##Original Code
+##Edit 1- Transfer to Rmarkdown
+The complete original script as well as the major edits have been moved to RMarkdown as opposed to submitting as a script file. This was inspired by one of my group mates, Kai-Hsaing (Jeremy). I decided to adopt this not only because it will create a pdf with embedded code and figures but because it allows for much more clear organisation of the code in chunks. I have changed the original code by correcting any grammatical errors present and also sectioning the code so that it can be separated and read in more manageable chunks.
+
+Below you can find the original code which contains general comments and edits in areas such as grammar/spelling, commenting style and readability/sectioning of the code. 
+
 ```{r}
+###General Setup and Importation of Data from BOLD----
 #First, required package needs to be installed
 #install.packages("tidyverse")
 #install.packages('vegan')
@@ -58,11 +63,15 @@ birdBOLD <- read_tsv( file = "http://www.boldsystems.org/index.php/API_Public/sp
 #I then used write_tsv() to write the birdBOLD dataframe to a delimited file named "Anseriformes_BOLD_data.tsv
 write_tsv(birdBOLD, "Anseriformes_BOLD_data.tsv")
 
+#This is being replaced at this area and commented so that anyone who reads this code for the first time can un-comment it (remove the pound symbol) and run it once the original dataset has been downloaded and their own working directory set. 
+birdBOLD <- read_tsv(file = 'Anseriformes_BOLD_data.tsv' )
+
 #general information was gathered using names(), summary(), and length() to have an idea of what is contained in the data
 names(birdBOLD)
 summary(birdBOLD)
 length(birdBOLD)
 
+###Map Generation----
 #Generating an exploratory map of the Anseriformes BINs with lat and lon values in Canada and Argentina
 
 #Using tidyverse format, I start with birdBOLD dataframe, filter for only rows where the country category is 'Canada' and 'Argentina', and filter to remove any NA values from the lat and lon categories. 
@@ -93,7 +102,7 @@ ggplot() +
   labs(title = 'Exploratory map of Anseriforms BOLD specimens in Canada and Argentina', x = 'longitude', y = 'latitude') +
   theme(plot.title = element_text(hjust = 0.5))
 
-
+###Creation of Species Accumulation Curves----
 #Built a rarefaction curve of all Anseriformes(waterfowl) specimens in Canada with lat and lon data to determine species richness
 
 #dataframe CanadabirdBIN is made by filtering out only specimens from Canada with a non-NA bin_uri from birdBOLD dataframe
@@ -141,13 +150,29 @@ Argrarefactioncurvebird <- rarecurve( x = ArgdfBINs.spread, step = 1,  xlab = 'S
 
 ```
 
-##Edit 1
+##Edit 2- Modification of Figures
+Modifying the species accumulation curves:
+This serves to combine both species accumulation curves into one cohesive figure that allows for easier comparison of the curves. 
 
-##Edit 2
+The function used here is from the graphics package included in base R. It is a function used to set or query graphical parameters, in this case it is used to call the 'mfrow =' argument which creates a matrix who's parameters are defined by a number of rows and columns. Each created graphic is then placed into that matrix from coordinates 1,1 until the matrix is full. 
+ie: mfrow = c(number of rows,number of columns)
 
-##Edit 3
+In this case, the two plots that are needed for comparison are plotted next to each other as the first rarefaction curve (Argentina) is placed in the matrix spot 1,1 and the second rarefaction curve (Canada) is placed in matrix spot 1,2. 
+ 
+This presents an elegant solution to the problem of displaying two figures for comparison side by side.
 
-##Reflection
+```{r}
+par(mfrow = c(1,2))
+rarecurve( x = ArgdfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richness", col = 'Black', main = 'Anseriformes in Argentina', lwd = 2 )
+rarecurve( x = dfBINs.spread, step = 1,  xlab = 'Sample size', ylab = "BIN richness", col = 'Black', main = 'Anseriformes in Canada', lwd = 2 )
 
-##Teamwork
+```
 
+##Edit 3- Introduction of a new plot with a viridis colour scheme. 
+I believe that this project could benefit from a visualisation in which not only the general composition of Anseriformes is examined but the species themselves are highlighted showing the possible differences in diversity (ie. species composition) between Canada and Argentina. I believe that a stacked bar chart is the best option for this because it is a simple graphic that can include multiple different points.
+
+Below you can find the code for a stacked bar chart
+```{r}
+
+
+```
